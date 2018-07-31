@@ -15,7 +15,7 @@ var (
 type builder func() (*Poolable, error)
 
 type Poolable struct {
-	Conn *io.Closer
+	Conn io.Closer
 	context.Context
 }
 
@@ -41,7 +41,7 @@ func (conn *Conn) Acquire() (*Poolable, error) {
 		}
 		select {
 		case <-closer.Done():
-			conn.Conn.Close(closer)
+			conn.Close(closer)
 			continue
 		default:
 			return closer, nil
