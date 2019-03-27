@@ -94,7 +94,9 @@ func (conn *Conn) Close(closer *Poolable) error {
 		return err
 	}
 	conn.active--
-	conn.notice <- struct{}{}
+	if len(conn.notice) == 0 {
+		conn.notice <- struct{}{}
+	}
 	conn.mutex.Unlock()
 	return nil
 }
