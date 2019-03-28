@@ -140,3 +140,27 @@ func NewManager(max int, builder builder) (*Conn, error) {
 	}
 	return conn, nil
 }
+
+// 创建连接管理器
+func NewManagerMust(max int, builder builder) *Conn {
+	if max <= 0 {
+		panic(InvalidConfig)
+	}
+	conn := &Conn{
+		notice:  make(chan struct{}, max),
+		max:     max,
+		pool:    make(chan *Poolable, max),
+		closed:  false,
+		builder: builder,
+		mutex:   new(sync.Mutex),
+	}
+	for i := 0; i < max; i++ {
+		closer, err := builder()
+		if err != nil {
+			panic(err)
+		}
+		conn.active++
+		conn.pool <- closer
+	}
+	return conn
+}
