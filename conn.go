@@ -29,6 +29,13 @@ type Conn struct {
 	mutex   *sync.Mutex
 }
 
+// 获取连接数
+func (conn *Conn) Active() int {
+	conn.mutex.Lock()
+	defer conn.mutex.Unlock()
+	return conn.active
+}
+
 // 获取连接
 func (conn *Conn) Acquire() (*Poolable, error) {
 	if conn.closed {
